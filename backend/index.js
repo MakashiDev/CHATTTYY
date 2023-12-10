@@ -121,6 +121,17 @@ app.get("/api/v1/user/register", (req, res) => {
 	);
 });
 
+app.get("/api/v1/user", (req, res) => {
+	const token = req.query.token;
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.send({ error: err.message });
+		} else {
+			res.send({ user: decoded });
+		}
+	});
+});
+
 app.get("*", (req, res) => {
 	res.send("Hello World!");
 });
