@@ -17,6 +17,9 @@ const Navbar = () => {
             <a href="#" className="text-white hover:text-gray-400">
               Settings
             </a>
+            <a href="#" className="text-white hover:text-gray-400">
+              Contact
+            </a>
             <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
               Get Started
             </button>
