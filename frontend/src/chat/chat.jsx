@@ -57,11 +57,7 @@ function Chat() {
             className="mb-3 flex h-full flex-col justify-end space-y-2 overflow-y-clip"
             id="messages"
           >
-            <div className="self-end">
-              <div className="ml-5 w-fit max-w-fit rounded-lg bg-blue-500 px-5 text-white">
-                <p>hey bbay</p>
-              </div>
-            </div>
+            
 
             <div className="flex-start">
               <span className="max-w-fit text-white">jessica</span>
