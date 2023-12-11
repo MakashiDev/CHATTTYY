@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import Login from "./login";
 import Chat from "./chat/chat";
 import Signup from "./signup";
+import Landing from "./landingPage";
 
 import "./index.css";
 
@@ -18,7 +19,7 @@ ReactDOM.render(
   <React.StrictMode>
     <Router>
       <Routes>
-        <Route path="/" element={<h1>Landing page</h1>} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/chat" element={<Chat />} />
