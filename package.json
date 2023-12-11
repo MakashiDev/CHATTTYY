@@ -1,30 +1,23 @@
 {
-  "name": "chat",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MakashiDev/chat.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/MakashiDev/chat/issues"
-  },
-  "homepage": "https://github.com/MakashiDev/chat#readme",
-  "devDependencies": {
-    "tailwindcss": "^3.3.6"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "http": "^0.0.1-security",
-    "jsonwebtoken": "^9.0.2",
-    "socket.io": "^4.7.2",
-    "sqlite3": "^5.1.6"
-  }
+	"name": "chat",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MakashiDev/chat.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/MakashiDev/chat/issues"
+	},
+	"homepage": "https://github.com/MakashiDev/chat#readme",
+	"devDependencies": {
+		"tailwindcss": "^3.3.6"
+	}
 }
