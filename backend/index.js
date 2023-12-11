@@ -10,6 +10,8 @@ const port = 4001;
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("main.db");
 
+app.use(express.json());
+
 const jwt = require("jsonwebtoken");
 const secretKey =
 	"ChatttyySecretKeyThatIsVerySecret/!@#$%^&*()_+asq324vsdwasd[]";
@@ -25,17 +27,17 @@ app.get("/api/v1/", (req, res) => {
 	res.send({ response: "I am alive" }).status(200);
 });
 
-app.get("/api/v1/user/login", (req, res) => {
+app.post("/api/v1/user/login", (req, res) => {
 	// Query database for user
-	const username = req.query.username;
-	const password = req.query.password;
+	const username = req.body.username;
+	const password = req.body.password;
 
 	db.get(
 		"SELECT * FROM users WHERE username = ? AND password = ?",
 		[username, password],
 		(err, row) => {
 			if (err) {
-				res.send({ error: err.message });
+				res.status(500).send({ error: err.message });
 			} else {
 				if (row) {
 					const token = jwt.sign(
@@ -47,29 +49,31 @@ app.get("/api/v1/user/login", (req, res) => {
 					);
 					res.send({ token: token, status: "success" });
 				} else {
-					res.send(
-						{ error: "User not found", status: 404 }.status(404)
-					);
+					res.status(401).send({
+						error: "Invalid username or password",
+						status: 401,
+					});
 				}
 			}
 		}
 	);
 });
 
-app.get("/api/v1/user/register", (req, res) => {
+app.post("/api/v1/user/register", (req, res) => {
 	// Query database for user
-	const username = req.query.username;
-	const password = req.query.password;
-	const email = req.query.email;
-	const timestamp = new Date.now();
+	const username = req.body.username;
+	const password = req.body.password;
+	const email = req.body.email;
+	const timestamp = Date.now();
+	console.log(username, password, email, timestamp);
 
 	// Check if user exists
 	db.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
 		if (err) {
-			res.send({ error: err.message });
+			res.status(500).send({ error: err.message });
 		} else {
 			if (row) {
-				res.send({ error: "Username already taken", status: 409 });
+				res.status(409).send({ error: "Username already taken" });
 				return;
 			}
 		}
@@ -121,8 +125,9 @@ app.get("/api/v1/user/register", (req, res) => {
 	);
 });
 
-app.get("/api/v1/user", (req, res) => {
-	const token = req.query.token;
+app.get("/api/v1/user/info", (req, res) => {
+	// get bearer token
+	const token = req.headers.authorization.split(" ")[1];
 	jwt.verify(token, secretKey, (err, decoded) => {
 		if (err) {
 			res.send({ error: err.message });
