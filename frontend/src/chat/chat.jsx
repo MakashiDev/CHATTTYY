@@ -67,14 +67,7 @@ function Chat() {
             className="mb-3 flex h-full flex-col justify-end space-y-2 overflow-y-clip"
             id="messages"
           >
-            
-
-            <div className="flex-start">
-              <span className="max-w-fit text-white">jessica</span>
-              <div className="ml-5 w-fit max-w-fit rounded-lg bg-gray-600 px-5 text-white">
-                <p>hello</p>
-              </div>
-            </div>
+        
 
             {messages.map((message) =>
               message.isFromMe ? (
