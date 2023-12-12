@@ -197,39 +197,74 @@ app.post("/api/v1/user/friend/accept", (req, res) => {
 			res.status(401).send({ error: err.message });
 		} else {
 			const user_id = decoded.user_id;
-			const friend_id = req.body.friend_id;
-			const timestamp = Date.now();
+			const friend_request_id = req.body.friend_request_id;
 
-			db.run(
-				"INSERT INTO friends (user_id, friend_id, timestamp) VALUES (?, ?, ?)",
-				[user_id, friend_id, timestamp],
-				(err) => {
+			db.get(
+				"SELECT * FROM friend_requests WHERE request_id = ?",
+				[friend_request_id],
+				(err, row) => {
 					if (err) {
-						res.send({ error: err.message });
+						res.status(500).send({ error: err.message });
 					} else {
-						db.run(
-							"INSERT INTO friends (user_id, friend_id, timestamp) VALUES (?, ?, ?)",
-							[friend_id, user_id, timestamp],
-							(err) => {
-								if (err) {
-									res.send({ error: err.message });
-								} else {
-									db.run(
-										"DELETE FROM friend_requests WHERE sender_id = ? AND receiver_id = ?",
-										[user_id, friend_id],
-										(err) => {
-											if (err) {
-												res.send({
-													error: err.message,
-												});
-											} else {
-												res.send({ status: "success" });
-											}
+						if (row) {
+							const sender_id = row.sender_id;
+							const receiver_id = row.receiver_id;
+							const timestamp = Date.now();
+
+							if (receiver_id == user_id) {
+								db.run(
+									"INSERT INTO friends (user_id, friend_id, timestamp) VALUES (?, ?, ?)",
+									[sender_id, receiver_id, timestamp],
+									(err) => {
+										if (err) {
+											res.status(500).send({
+												error: err.message,
+											});
+										} else {
+											db.run(
+												"INSERT INTO friends (user_id, friend_id, timestamp) VALUES (?, ?, ?)",
+												[
+													receiver_id,
+													sender_id,
+													timestamp,
+												],
+												(err) => {
+													if (err) {
+														res.status(500).send({
+															error: err.message,
+														});
+													} else {
+														db.run(
+															"DELETE FROM friend_requests WHERE request_id = ?",
+															[friend_request_id],
+															(err) => {
+																if (err) {
+																	res.send({
+																		error: err.message,
+																	});
+																} else {
+																	res.send({
+																		status: "success",
+																	});
+																}
+															}
+														);
+													}
+												}
+											);
 										}
-									);
-								}
+									}
+								);
+							} else {
+								res.status(401).send({
+									error: "You are not authorized to accept this request",
+								});
 							}
-						);
+						} else {
+							res.status(404).send({
+								error: "Friend request not found",
+							});
+						}
 					}
 				}
 			);
