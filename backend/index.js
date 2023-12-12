@@ -137,6 +137,201 @@ app.get("/api/v1/user/info", (req, res) => {
 	});
 });
 
+// sending friend request
+app.post("/api/v1/user/friend/request", (req, res) => {
+	const token = req.headers.authorization.split(" ")[1];
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.status(401).send({ error: err.message });
+		} else {
+			const user_id = decoded.user_id;
+			const friend_id = req.body.friend_id;
+			const timestamp = Date.now();
+
+			db.run(
+				"INSERT INTO friend_requests (sender_id, receiver_id, timestamp) VALUES (?, ?, ?)",
+				[user_id, friend_id, timestamp],
+				(err) => {
+					if (err) {
+						res.send({ error: err.message });
+					} else {
+						res.send({ status: "success" });
+					}
+				}
+			);
+		}
+	});
+});
+
+// getting friend requests
+app.get("/api/v1/user/friend/requests", (req, res) => {
+	const token = req.headers.authorization.split(" ")[1];
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.status(401).send({ error: err.message });
+		} else {
+			const user_id = decoded.user_id;
+
+			db.all(
+				"SELECT * FROM friend_requests WHERE receiver_id = ?",
+				[user_id],
+				(err, rows) => {
+					if (err) {
+						res.send({ error: err.message });
+					} else {
+						res.send({ requests: rows });
+					}
+				}
+			);
+		}
+	});
+});
+
+// accepting friend request
+app.post("/api/v1/user/friend/accept", (req, res) => {
+	const token = req.headers.authorization.split(" ")[1];
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.status(401).send({ error: err.message });
+		} else {
+			const user_id = decoded.user_id;
+			const friend_id = req.body.friend_id;
+			const timestamp = Date.now();
+
+			db.run(
+				"INSERT INTO friends (user_id, friend_id, timestamp) VALUES (?, ?, ?)",
+				[user_id, friend_id, timestamp],
+				(err) => {
+					if (err) {
+						res.send({ error: err.message });
+					} else {
+						db.run(
+							"INSERT INTO friends (user_id, friend_id, timestamp) VALUES (?, ?, ?)",
+							[friend_id, user_id, timestamp],
+							(err) => {
+								if (err) {
+									res.send({ error: err.message });
+								} else {
+									db.run(
+										"DELETE FROM friend_requests WHERE sender_id = ? AND receiver_id = ?",
+										[user_id, friend_id],
+										(err) => {
+											if (err) {
+												res.send({
+													error: err.message,
+												});
+											} else {
+												res.send({ status: "success" });
+											}
+										}
+									);
+								}
+							}
+						);
+					}
+				}
+			);
+		}
+	});
+});
+
+// rejecting friend request
+app.post("/api/v1/user/friend/reject", (req, res) => {
+	const token = req.headers.authorization.split(" ")[1];
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.status(401).send({ error: err.message });
+		} else {
+			const user_id = decoded.user_id;
+			const friend_id = req.body.friend_id;
+
+			db.run(
+				"DELETE FROM friend_requests WHERE sender_id = ? AND receiver_id = ?",
+				[user_id, friend_id],
+				(err) => {
+					if (err) {
+						res.send({ error: err.message });
+					} else {
+						res.send({ status: "success" });
+					}
+				}
+			);
+		}
+	});
+});
+
+// getting friends
+app.get("/api/v1/user/friends", (req, res) => {
+	const token = req.headers.authorization.split(" ")[1];
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.status(401).send({ error: err.message });
+		} else {
+			const user_id = decoded.user_id;
+
+			db.all(
+				"SELECT * FROM friends WHERE user_id = ?",
+				[user_id],
+				(err, rows) => {
+					if (err) {
+						res.send({ error: err.message });
+					} else {
+						res.send({ friends: rows });
+					}
+				}
+			);
+		}
+	});
+});
+
+// getting friend requests
+app.get("/api/v1/user/friend/requests", (req, res) => {
+	const token = req.headers.authorization.split(" ")[1];
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.status(401).send({ error: err.message });
+		} else {
+			const user_id = decoded.user_id;
+
+			db.all(
+				"SELECT * FROM friend_requests WHERE receiver_id = ?",
+				[user_id],
+				(err, rows) => {
+					if (err) {
+						res.send({ error: err.message });
+					} else {
+						res.send({ requests: rows });
+					}
+				}
+			);
+		}
+	});
+});
+
+// getting friend info
+app.get("/api/v1/user/friend/info/:friend_id", (req, res) => {
+	const token = req.headers.authorization.split(" ")[1];
+	jwt.verify(token, secretKey, (err, decoded) => {
+		if (err) {
+			res.status(401).send({ error: err.message });
+		} else {
+			const friend_id = req.params.friend_id;
+
+			db.get(
+				"SELECT * FROM users WHERE user_id = ?",
+				[friend_id],
+				(err, row) => {
+					if (err) {
+						res.send({ error: err.message });
+					} else {
+						res.send({ friend: row });
+					}
+				}
+			);
+		}
+	});
+});
+
 app.get("*", (req, res) => {
 	res.send("Hello World!");
 });
