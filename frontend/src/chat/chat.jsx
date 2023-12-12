@@ -49,6 +49,16 @@ function Chat() {
 
   return (
     <div className="flex h-screen bg-gray-800">
+<input type="checkbox" name="" id="" onChange={(e) => {
+      if (e.target.checked) {
+        // ask for username
+        const username = prompt("Please enter your username");
+        setMessage({ ...message, username: username, isFromMe: false });
+      } else {
+        // remove username
+        setMessage({ ...message, username: "", isFromMe: true });
+      }
+    }} />
 
     <Sidebar users={chats.users} />
       <div className="flex h-screen w-5/6 flex-col overflow-y-auto bg-gray-800">
