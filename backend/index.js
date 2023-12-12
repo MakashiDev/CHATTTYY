@@ -148,6 +148,8 @@ app.post("/api/v1/user/friend/request", (req, res) => {
 			const friend_id = req.body.friend_id;
 			const timestamp = Date.now();
 
+			console.log(`${user_id} sent a friend request to ${friend_id}`);
+
 			db.run(
 				"INSERT INTO friend_requests (sender_id, receiver_id, timestamp) VALUES (?, ?, ?)",
 				[user_id, friend_id, timestamp],
