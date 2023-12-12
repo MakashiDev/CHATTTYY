@@ -9,6 +9,7 @@ const io = socketIO(server);
 const port = 4001;
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("main.db");
+const path = require("path");
 
 app.use(express.json());
 
@@ -280,16 +281,45 @@ app.post("/api/v1/user/friend/reject", (req, res) => {
 			res.status(401).send({ error: err.message });
 		} else {
 			const user_id = decoded.user_id;
-			const friend_id = req.body.friend_id;
+			const friend_request_id = req.body.friend_request_id;
 
-			db.run(
-				"DELETE FROM friend_requests WHERE sender_id = ? AND receiver_id = ?",
-				[user_id, friend_id],
-				(err) => {
+			db.get(
+				"SELECT * FROM friend_requests WHERE request_id = ?",
+				[friend_request_id],
+				(err, row) => {
 					if (err) {
-						res.send({ error: err.message });
+						res.status(500).send({ error: err.message });
 					} else {
-						res.send({ status: "success" });
+						if (row) {
+							const sender_id = row.sender_id;
+							const receiver_id = row.receiver_id;
+
+							if (receiver_id == user_id) {
+								db.run(
+									"DELETE FROM friend_requests WHERE request_id = ?",
+									[friend_request_id],
+									(err) => {
+										if (err) {
+											res.send({
+												error: err.message,
+											});
+										} else {
+											res.send({
+												status: "success",
+											});
+										}
+									}
+								);
+							} else {
+								res.status(401).send({
+									error: "You are not authorized to reject this request",
+								});
+							}
+						} else {
+							res.status(404).send({
+								error: "Friend request not found",
+							});
+						}
 					}
 				}
 			);
@@ -361,7 +391,13 @@ app.get("/api/v1/user/friend/info/:friend_id", (req, res) => {
 					if (err) {
 						res.send({ error: err.message });
 					} else {
-						res.send({ friend: row });
+						res.send({
+							friend: {
+								friend_id: row.user_id,
+								username: row.username,
+								nickname: row.nickname,
+							},
+						});
 					}
 				}
 			);
@@ -370,7 +406,7 @@ app.get("/api/v1/user/friend/info/:friend_id", (req, res) => {
 });
 
 app.get("*", (req, res) => {
-	res.send("Hello World!");
+	res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
 });
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
