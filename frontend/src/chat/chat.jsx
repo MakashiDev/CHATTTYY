@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "./sidebar";
+import Sidebar from "./sidebar/sidebar";
 import SendButton from "./sendButton";
 import UsMessage from "./usMessage";
 import TheirMessage from "./theirMessage";
@@ -34,15 +34,23 @@ function Chat() {
   };
 
   let chats = {
-    "users":
+    "groups":
     [
       {
         "id": 1,
-        "username": "jessica"
+        "name": "jessica",
+        "lastMessage": {
+          "message": "hello, is the really awesome chat app? my friend told me about it and i wanted to check it out",
+          "time": "12:00"
+        }
       },
       {
         "id": 2,
-        "username": "james"
+        "name": "james",
+        "lastMessage": {
+          "message": "hello",
+          "time": "12:00"
+        }
       }
     ]
   }
@@ -60,7 +68,7 @@ function Chat() {
       }
     }} />
 
-    <Sidebar users={chats.users} />
+    <Sidebar groups={chats.groups} />
       <div className="flex h-screen w-5/6 flex-col overflow-y-auto bg-gray-800">
         <div className="flex h-full flex-col justify-between p-4 md:w-1/2 md:self-center">
           <div
