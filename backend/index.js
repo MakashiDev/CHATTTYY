@@ -460,12 +460,6 @@ app.post("/api/v1/user/group/create", (req, res) => {
                     }
                 }
             );
-
-
-
-
-
-
         }
     });
 
