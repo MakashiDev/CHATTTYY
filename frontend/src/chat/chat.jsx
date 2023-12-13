@@ -3,6 +3,7 @@ import Sidebar from "./sidebar/sidebar";
 import SendButton from "./sendButton";
 import UsMessage from "./usMessage";
 import TheirMessage from "./theirMessage";
+import DropDown from "./dropDown";
 
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -57,6 +58,7 @@ function Chat() {
 
   return (
     <div className="flex h-screen bg-gray-800">
+    <DropDown />
 <input type="checkbox" name="" id="" onChange={(e) => {
       if (e.target.checked) {
         // ask for username
