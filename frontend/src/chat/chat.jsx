@@ -3,7 +3,7 @@ import Sidebar from "./sidebar/sidebar";
 import SendButton from "./sendButton";
 import UsMessage from "./usMessage";
 import TheirMessage from "./theirMessage";
-import DropDown from "./dropDown";
+import DropDown from "./dropDown/dropDown";
 
 function Chat() {
   const [messages, setMessages] = useState([]);
