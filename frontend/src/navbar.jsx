@@ -17,7 +17,7 @@ const Navbar = () => {
 							Home
 						</a>
 						<a
-							href="#"
+							href="/contact"
 							className="px-2 text-white hover:text-gray-400"
 						>
 							Contact
