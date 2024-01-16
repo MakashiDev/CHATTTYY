@@ -33,6 +33,8 @@ app.post("/api/v1/user/login", (req, res) => {
 	const username = req.body.username;
 	const password = req.body.password;
 
+	console.log("User login attempt: ", username, password);
+
 	db.get(
 		"SELECT * FROM users WHERE username = ? AND password = ?",
 		[username, password],
@@ -50,10 +52,45 @@ app.post("/api/v1/user/login", (req, res) => {
 					);
 					res.send({ token: token, status: "success" });
 				} else {
-					res.status(401).send({
-						error: "Invalid username or password",
-						status: 401,
-					});
+					if (!username.includes("@")) {
+						res.status(401).send({
+							error: "Invalid username or password",
+							status: 401,
+						});
+						return;
+					}
+					// check for email
+					db.get(
+						"SELECT * FROM users WHERE email = ? AND password = ?",
+						[username, password],
+						(err, row) => {
+							if (err) {
+								res.status(500).send({ error: err.message });
+							} else {
+								if (row) {
+									const token = jwt.sign(
+										{
+											username: row.username,
+											user_id: row.user_id,
+										},
+										secretKey,
+										{
+											expiresIn: "24h",
+										}
+									);
+									res.send({
+										token: token,
+										status: "success",
+									});
+								} else {
+									res.status(401).send({
+										error: "Invalid username or password",
+										status: 401,
+									});
+								}
+							}
+						}
+					);
 				}
 			}
 		}
@@ -74,66 +111,110 @@ app.post("/api/v1/user/register", (req, res) => {
 			res.status(500).send({ error: err.message });
 		} else {
 			if (row) {
-				res.status(409).send({ error: "Username already taken" });
+				res.status(409).send({
+					error: "Username already taken",
+					status: 409,
+				});
 				return;
-			}
-		}
-	});
-
-	// check if email exists
-	db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
-		if (err) {
-			res.send({ error: err.message });
-		} else {
-			if (row) {
-				res.send({ error: "Email already taken", status: 409 });
-				return;
-			}
-		}
-	});
-
-	db.run(
-		"INSERT INTO users (username, password, email, created_at) VALUES (?, ?, ?, ?)",
-		[username, password, email, timestamp],
-		(err) => {
-			if (err) {
-				res.send({ error: err.message });
 			} else {
-				// Get the newly created user
+				// check if email exists
 				db.get(
-					"SELECT * FROM users WHERE username = ?",
-					[username],
+					"SELECT * FROM users WHERE email = ?",
+					[email],
 					(err, row) => {
 						if (err) {
 							res.send({ error: err.message });
 						} else {
-							const token = jwt.sign(
-								{
-									username: row.username,
-									user_id: row.user_id,
-								},
-								secretKey,
-								{
-									expiresIn: "24h",
-								}
-							);
-							res.send({ token: token, status: "success" });
+							if (row) {
+								res.status(409).send({
+									error: "Email already taken",
+									status: 409,
+								});
+								return;
+							} else {
+								db.run(
+									"INSERT INTO users (username, password, email, created_at) VALUES (?, ?, ?, ?)",
+									[username, password, email, timestamp],
+									(err) => {
+										if (err) {
+											res.send({ error: err.message });
+										} else {
+											// Get the newly created user
+											db.get(
+												"SELECT * FROM users WHERE username = ?",
+												[username],
+												(err, row) => {
+													if (err) {
+														res.send({
+															error: err.message,
+														});
+													} else {
+														const token = jwt.sign(
+															{
+																username:
+																	row.username,
+																user_id:
+																	row.user_id,
+															},
+															secretKey,
+															{
+																expiresIn:
+																	"24h",
+															}
+														);
+														res.send({
+															token: token,
+															status: "success",
+														});
+													}
+												}
+											);
+										}
+									}
+								);
+							}
 						}
 					}
 				);
 			}
 		}
-	);
+	});
+});
+
+app.post("/api/v1/user/username", (req, res) => {
+	// Query database for user
+	const username = req.body.username;
+
+	console.log("Checking username: ", username);
+
+	// Check if user exists
+	db.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
+		if (err) {
+			res.status(500).send({ error: err.message });
+		} else {
+			if (row) {
+				res.status(409).send({
+					error: "Username already taken",
+					status: 409,
+				});
+				return;
+			} else {
+				res.send({ status: "success" });
+			}
+		}
+	});
 });
 
 app.get("/api/v1/user/info", (req, res) => {
 	// get bearer token
+
 	const token = req.headers.authorization.split(" ")[1];
 	jwt.verify(token, secretKey, (err, decoded) => {
 		if (err) {
-			res.send({ error: err.message });
+			res.send({ error: err.message, status: 401 });
 		} else {
-			res.send({ user: decoded });
+			console.log("Getting user info for token: ", decoded.username);
+			res.send({ user: decoded, status: "success" });
 		}
 	});
 });
