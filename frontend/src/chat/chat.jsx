@@ -4,6 +4,7 @@ import SendButton from "./sendButton";
 import UsMessage from "./usMessage";
 import TheirMessage from "./theirMessage";
 import DropDown from "./dropDown/dropDown";
+import FriendsMenu from "./friendsMenu";
 
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -21,6 +22,7 @@ function Chat() {
 
   console.log(message);
   const [username, setUsername] = useState("");
+  const [showFriendsMenu, setShowFriendsMenu] = useState(false);
 
   const [users, setUsers] = useState([]);
 
@@ -57,8 +59,11 @@ function Chat() {
   }
 
   return (
+
+
     <div className="flex h-screen bg-gray-800">
-    <DropDown />
+    <DropDown showFriendsMenu={showFriendsMenu} setShowFriendsMenu={setShowFriendsMenu} />
+    {showFriendsMenu ? <FriendsMenu  showFriendsMenu={showFriendsMenu} setShowFriendsMenu={setShowFriendsMenu} /> : null}
 <input type="checkbox" name="" id="" onChange={(e) => {
       if (e.target.checked) {
         // ask for username
