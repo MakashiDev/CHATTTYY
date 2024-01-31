@@ -1,32 +1,34 @@
-import { Dropdown } from 'flowbite-react';
-import { useState } from 'react';
-import ArrowDown from './downArrow';
-import FriendsMenu from '../friendsMenu';
+import { Dropdown } from "flowbite-react";
+import { useState } from "react";
+import ArrowDown from "./downArrow";
+import FriendsMenu from "../friendsMenu";
+import { showFriendsMenu, hideFriendsMenu } from "../friendsMenu";
 
 function DropDown(props) {
-
-  return (
-    <div className='absolute top-0 right-0'>
-
-    <Dropdown className='w-fit px-2 outline-none border-none text-white text-lg font-semibold' label="" dismissOnClick={false} renderTrigger={() => 
-    
-    <div className='h-12 w-12 cursor-pointer bg-blue-500 rounded-full'>
-      <ArrowDown className='h-12 w-12' />
-    </div>
-    }>
-      <Dropdown.Item
-      onClick={
-        () => {
-          console.log('clicked');
-          props.setShowFriendsMenu(!props.showFriendsMenu);
-
-        }
-      }
-      >Friends</Dropdown.Item>
-    <Dropdown.Item>Settings</Dropdown.Item>
-    </Dropdown>
-    </div>
-  );
+	return (
+		<div className="absolute right-0 top-0">
+			<Dropdown
+				className="w-fit border-none px-2 text-lg font-semibold text-white outline-none"
+				label=""
+				dismissOnClick={false}
+				renderTrigger={() => (
+					<div className="h-12 w-12 cursor-pointer rounded-full bg-blue-500">
+						<ArrowDown className="h-12 w-12" />
+					</div>
+				)}
+			>
+				<Dropdown.Item
+					onClick={() => {
+						console.log("clicked");
+						showFriendsMenu();
+					}}
+				>
+					Friends
+				</Dropdown.Item>
+				<Dropdown.Item>Settings</Dropdown.Item>
+			</Dropdown>
+		</div>
+	);
 }
 
 export default DropDown;
