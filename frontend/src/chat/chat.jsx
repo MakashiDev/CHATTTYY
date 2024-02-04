@@ -6,21 +6,52 @@ import TheirMessage from "./theirMessage";
 import Modal from "./groupCreate/modal";
 
 function Chat() {
+
+	const token = localStorage.getItem("token");
+
 	const [messages, setMessages] = useState([]);
+	const [username, setUsername] = useState("");
 
 	const [message, setMessage] = useState({
 		username: "",
 		message: "",
 		isFromMe: true,
 	});
+const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		const username = prompt("Please enter your username");
-		setMessage({ ...message, username: username });
+		console.log("useEffect");
+		if (token) {
+			// Request user info
+			fetch("http://localhost:4001/api/v1/user/info", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data);
+					if (data["status"] === "success") {
+						console.log(data["data"]);
+						setMessage({
+							...message,
+							username: data["user"]["username"],
+						});
+						setUsername(data["user"]["username"]);
+						setLoading(false);
+					} else {
+						window.location.href = "/login";
+					}
+				});
+		} else {
+			window.location.href = "/login";
+		}
 	}, []);
 
-	console.log(message);
-	const [username, setUsername] = useState("");
+	console.log(username);
+
 
 	const [users, setUsers] = useState([]);
 
@@ -29,7 +60,7 @@ function Chat() {
 			if (!message.message == "") {
 				const newMessages = [...messages, message];
 				setMessages(newMessages);
-				setMessage({ username: "", message: "", isFromMe: true });
+				setMessage({ username: username, message: "", isFromMe: true });
 			}
 		}
 	};
@@ -59,30 +90,6 @@ function Chat() {
 	return (
 		<div className="flex h-screen bg-gray-800">
 			<Modal />
-			<input
-				type="checkbox"
-				name=""
-				id=""
-				onChange={(e) => {
-					if (e.target.checked) {
-						// ask for username
-						const username = prompt("Please enter your username");
-						setMessage({
-							...message,
-							username: username,
-							isFromMe: false,
-						});
-					} else {
-						// remove username
-						setMessage({
-							...message,
-							username: "",
-							isFromMe: true,
-						});
-					}
-				}}
-			/>
-
 			<Sidebar groups={chats.groups} />
 			<div className="flex h-screen w-5/6 flex-col overflow-y-auto bg-gray-800">
 				<div className="flex h-full flex-col justify-between p-4 md:w-1/2 md:self-center">
