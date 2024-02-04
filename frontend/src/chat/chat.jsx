@@ -3,18 +3,21 @@ import Sidebar from "./sidebar/sidebar";
 import SendButton from "./sendButton";
 import UsMessage from "./usMessage";
 import TheirMessage from "./theirMessage";
+import Modal from "./groupCreate/modal";
 
 function Chat() {
+
 	const token = localStorage.getItem("token");
 
 	const [messages, setMessages] = useState([]);
 	const [username, setUsername] = useState("");
+
 	const [message, setMessage] = useState({
 		username: "",
 		message: "",
 		isFromMe: true,
 	});
-	const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		console.log("useEffect");
@@ -48,6 +51,7 @@ function Chat() {
 	}, []);
 
 	console.log(username);
+
 
 	const [users, setUsers] = useState([]);
 
@@ -85,30 +89,7 @@ function Chat() {
 
 	return (
 		<div className="flex h-screen bg-gray-800">
-			<input
-				type="checkbox"
-				name=""
-				id=""
-				onChange={(e) => {
-					if (e.target.checked) {
-						// ask for username
-						const username = prompt("Please enter your username");
-						setMessage({
-							...message,
-							username: username,
-							isFromMe: false,
-						});
-					} else {
-						// remove username
-						setMessage({
-							...message,
-							username: "",
-							isFromMe: true,
-						});
-					}
-				}}
-			/>
-
+			<Modal />
 			<Sidebar groups={chats.groups} />
 			<div className="flex h-screen w-5/6 flex-col overflow-y-auto bg-gray-800">
 				<div className="flex h-full flex-col justify-between p-4 md:w-1/2 md:self-center">
